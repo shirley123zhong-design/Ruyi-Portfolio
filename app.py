@@ -9,7 +9,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))  # ensure relative asset pa
 from theme import apply_theme, eyebrow, nav_card_html
 
 st.set_page_config(
-    page_title="Shirley Zhong | Portfolio",
+    page_title="Ruyi Zhong(Shirley) | Portfolio",
     page_icon="📊",
     layout="wide",
 )
