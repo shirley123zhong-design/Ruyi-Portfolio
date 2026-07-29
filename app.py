@@ -24,7 +24,7 @@ with col1:
         """
         <p style="font-family:'Archivo',sans-serif; font-weight:800; font-size:2.5rem;
                    letter-spacing:0.01em; margin-bottom:0; color:#141414;">
-            Shirley Zhong
+            Ruyi Zhong(Shirley)
         </p>
         """,
         unsafe_allow_html=True,
