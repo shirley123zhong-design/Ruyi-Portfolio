@@ -54,15 +54,15 @@ def download_button_for(filename, label):
         st.caption(f"Add `{path}` to enable this download.")
 
 
-def download_bankdata_case():
+def download_bankdata_case(label="Download Bankdata Case 2 (ZIP)", key="bankdata_case2_download"):
     # Case 2 is stored directly under assets, not assets/files.
     path = os.path.join(_PROJECT_ROOT, "assets", "Bankdata_benchmark.zip")
     if os.path.isfile(path):
         with open(path, "rb") as f:
             st.download_button(
-                "Download Bankdata Case 2 (ZIP)", data=f,
+                label, data=f,
                 file_name="Bankdata_benchmark.zip", mime="application/zip",
-                key="bankdata_case2_download",
+                key=key,
             )
     else:
         st.caption("Add `assets/Bankdata_benchmark.zip` to enable the case download.")
@@ -479,7 +479,7 @@ st.markdown("---")
 
 eyebrow("Resources")
 st.subheader("Downloads")
-dl_cols = st.columns(5)
+dl_cols = st.columns(6)
 with dl_cols[0]:
     download_button_for(FAIRVIEW["download"], "Fairview files")
 with dl_cols[1]:
@@ -490,3 +490,5 @@ with dl_cols[3]:
     download_button_for(PCARD["download"], "P-Card files")
 with dl_cols[4]:
     download_button_for(PCARD["download"], "ELT files")
+with dl_cols[5]:
+    download_bankdata_case("Bankdata benchmark files", key="bankdata_case2_resources_download")
