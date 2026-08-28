@@ -21,18 +21,17 @@ hero(
     icon="🔬",
     title="Research-Based Problem Solving",
     subtitle=(
-        "I use research design, survey data, and statistical modelling to help companies solve "
-        "problems that are complex, people-related, and don't have one obvious cause. This case "
-        "shows how I turn a vague management concern into a testable research design, validate the "
-        "data, and hand back a short list of decisions leadership can act on."
+        "I use research design and statistical analysis to turn complex business concerns into "
+        "testable questions. These cases cover bank performance benchmarking and employee burnout: "
+        "checking the data, challenging initial findings, and distinguishing what the evidence "
+        "supports from what still needs investigation."
     ),
     tags=[
-        "Research design", "Survey / people analytics", "Regression",
-        "Mediation & moderation testing", "Data validation (CFA / reliability)",
-        "Evidence-based HR recommendations",
+        "Research design", "Financial benchmarking", "Survey / people analytics",
+        "Regression", "Robustness checks", "Mediation & moderation testing",
     ],
     flow="Business concern → Research question → Data validation → Statistical testing → "
-         "Qualitative follow-up → Management recommendation",
+         "Limitations & follow-up → Business recommendation",
 )
 
 # -----------------------------------------------------------------------
@@ -40,10 +39,10 @@ hero(
 # -----------------------------------------------------------------------
 eyebrow("The takeaway")
 st.info(
-    "**The company shouldn't fix complex problems with generic programs — it should diagnose "
-    "the real driver first.** In this case, that meant recognizing stress (not deadlines) as "
-    "the actual mechanism, keeping work-hour monitoring on the table, and treating AI adoption "
-    "as a role-design question rather than a technology problem."
+    "**A useful analysis shows both what a company can conclude and what it cannot.** "
+    "For Bankdata, this means separating financial performance differences from evidence of "
+    "a data centre's contribution. For the burnout study, it means testing proposed explanations "
+    "and designing follow-up research around the remaining questions."
 )
 
 st.markdown("---")
@@ -112,6 +111,20 @@ def download_button_for(filename, label):
             st.download_button(label, data=f, file_name=filename)
     else:
         st.caption(f"Add `{path}` to enable this download.")
+
+
+def download_bankdata_case():
+    # Case 2 is stored directly under assets, not assets/files.
+    path = os.path.join(_PROJECT_ROOT, "assets", "Bankdata_benchmark.zip")
+    if os.path.isfile(path):
+        with open(path, "rb") as f:
+            st.download_button(
+                "Download Bankdata Case 2 (ZIP)", data=f,
+                file_name="Bankdata_benchmark.zip", mime="application/zip",
+                key="bankdata_case2_download",
+            )
+    else:
+        st.caption("Add `assets/Bankdata_benchmark.zip` to enable the case download.")
 
 
 # -----------------------------------------------------------------------
@@ -299,6 +312,126 @@ def render_case_card(case):
         "& moderation testing."
     )
 
+
+# -----------------------------------------------------------------------
+# BANKDATA CASE 2 — same shared cards, tabs and expanders as the existing case
+# -----------------------------------------------------------------------
+
+eyebrow("Bankdata · Case 2")
+st.markdown(
+    case_card_html(
+        "Investigating Data Centre Affiliation and Bank Performance",
+        "What can differences in bank performance tell Bankdata about its positioning, "
+        "and what further evidence is needed to assess its contribution?",
+        ["Excel", "Power Query", "Python", "Financial benchmarking", "Robustness analysis"],
+        "3 data centre groups · 4 financial KPIs · Bank size as a control and moderator",
+    ),
+    unsafe_allow_html=True,
+)
+st.caption(
+    "Individual case project — I prepared the data, analysed financial performance, "
+    "tested alternative specifications, and translated the findings into implications for Bankdata."
+)
+bd_a, bd_b, bd_c, bd_d, bd_e = st.tabs([
+    "A · Business Problem", "B · Analysis Logic", "C · Evidence & Limits",
+    "D · Further Research", "E · Implications & Files",
+])
+with bd_a:
+    eyebrow("Section A")
+    st.subheader("From Bank Benchmarking to a Business Question")
+    with st.expander("View the business problem", expanded=True):
+        st.markdown(
+            "**Context**  \nBanks use different data centre providers, but their financial results "
+            "also reflect size, business model, and organisational changes. Comparing results alone "
+            "cannot isolate the provider's contribution."
+        )
+        st.markdown(
+            "**Bankdata's perspective**  \nThe aim is to understand whether observed performance "
+            "differences offer credible evidence for customer discussions, and where Bankdata "
+            "needs more direct operational evidence before making stronger claims."
+        )
+with bd_b:
+    eyebrow("Section B")
+    st.subheader("How the Research Question Was Tested")
+    with st.expander("View the analytical sequence", expanded=True):
+        st.markdown("""
+| Step | Question and method | Why it matters |
+| --- | --- | --- |
+| Baseline comparison | Calculate ROE, ROA, cost-to-income, and revenue per employee; compare Bankdata, BEC, and Netcompany. | Establish the observed pattern before sensitivity adjustments. |
+| Group differences | Use medians for description, Kruskal–Wallis for rank-based comparison, effect sizes, and Dunn's post-hoc comparisons where appropriate. | Assess group differences without relying only on averages or p-values. |
+| Robustness | Compare the baseline with bank-level aggregation and mortgage-affiliation exclusions. | Check whether repeated bank-year observations or business-model composition influence the findings. |
+| Bank size as a control | Include size in regression models alongside data centre affiliation. | Ask whether affiliation differences persist after accounting for size. |
+| Bank size as a moderator | Add affiliation-by-size interaction terms. | Ask whether the association varies with bank size. |
+| Interpretation | Compare findings across specifications and identify missing operational evidence. | Define what Bankdata can responsibly use in its positioning. |
+""")
+        st.caption(
+            "The baseline still requires data preparation and KPI calculation. Bank-level aggregation "
+            "changes the unit of analysis and reduces unequal weighting from repeated years. "
+            "Merger treatment is a separate comparability issue; its completed checks should be "
+            "read from the final case package, not assumed from the design alone."
+        )
+with bd_c:
+    eyebrow("Section C")
+    st.subheader("What the Evidence Can Support")
+    st.info(
+        "**Observed differences are not proof that a data centre causes better bank performance.** "
+        "The strength of the case lies in checking whether the interpretation survives changes "
+        "in the sample, unit of analysis, and treatment of bank size."
+    )
+    with st.expander("View interpretation and limitations"):
+        st.markdown(
+            "**Sensitivity matters**  \nIn the analysis, some group differences became less "
+            "statistically clear after moving from repeated bank-year observations to bank-level "
+            "values. Mortgage exclusions also changed the evidence for some KPIs. A single ranking "
+            "therefore does not capture the full result."
+        )
+        st.markdown(
+            "**Read the tests together**  \nGroup medians describe performance; rank tests assess "
+            "distributional differences; effect sizes describe their magnitude. Regression and "
+            "interaction models address different questions about bank size."
+        )
+        st.markdown(
+            "**Limits**  \nProvider selection is not random. Bank strategy, customer mix, mergers, "
+            "and other unobserved factors can affect results. Financial KPIs alone do not measure "
+            "the quality or operational impact of a data centre."
+        )
+        st.caption("See the case package for the detailed result tables and final specifications.")
+with bd_d:
+    eyebrow("Section D")
+    st.subheader("The Next Evidence Bankdata Needs")
+    with st.expander("View the proposed operational research"):
+        st.markdown(
+            "**Proposed pathway — not tested here**  \nData centre services → bank operational "
+            "performance → bank financial performance. Operational performance is a proposed "
+            "mediator, not a demonstrated mechanism in this dataset."
+        )
+        st.markdown(
+            "**Quantitative follow-up**  \nCollect comparable measures over time, such as service "
+            "availability, incident resolution time, processing time, automation rate, and cost "
+            "per transaction. Agree definitions and denominators with participating banks before "
+            "linking these measures to financial outcomes."
+        )
+        st.markdown(
+            "**Qualitative follow-up**  \nUse interviews and surveys with bank operations and IT "
+            "stakeholders to understand how services affect daily work, where benefits arise, "
+            "and which constraints prevent those benefits from reaching financial results."
+        )
+        st.caption("This is a proposed follow-up design; operational data collection and mediation testing remain future work.")
+with bd_e:
+    eyebrow("Section E")
+    st.subheader("Implications for Bankdata")
+    st.markdown(
+        "Use financial benchmarking to start informed customer conversations, report sensitivity "
+        "alongside headline comparisons, and build direct operational evidence before claiming "
+        "a provider-driven performance advantage."
+    )
+    download_bankdata_case()
+    st.page_link("pages/2_Accounting_and_Performance_Insights.py", label="Financial benchmarking perspective →")
+    st.page_link("pages/6_Technical_Skills_and_Code_Gallery.py", label="Analytical methods and technical workflow →")
+
+st.markdown("---")
+eyebrow("Employee burnout · Research case")
+st.subheader("Reducing Burnout Risk in a Hybrid, AI-Enabled Company")
 
 # -----------------------------------------------------------------------
 # TABS — SECTIONS A / B / C / D / E

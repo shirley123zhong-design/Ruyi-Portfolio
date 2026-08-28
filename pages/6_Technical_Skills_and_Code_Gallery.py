@@ -59,6 +59,20 @@ def download_button_for(filename, label):
         st.caption(f"Add `{path}` to enable this download.")
 
 
+def download_bankdata_case():
+    # Case 2 is stored directly under assets, not assets/files.
+    path = os.path.join(_PROJECT_ROOT, "assets", "Bankdata_benchmark.zip")
+    if os.path.isfile(path):
+        with open(path, "rb") as f:
+            st.download_button(
+                "Download Bankdata Case 2 (ZIP)", data=f,
+                file_name="Bankdata_benchmark.zip", mime="application/zip",
+                key="bankdata_case2_download",
+            )
+    else:
+        st.caption("Add `assets/Bankdata_benchmark.zip` to enable the case download.")
+
+
 def bullet_list(items):
     st.markdown("\n".join(f"- {i}" for i in items))
 
@@ -605,6 +619,27 @@ with tab_e:
     with st.expander("View full Python methods reference"):
         render_grouped(PYTHON_METHODS)
 
+    st.markdown("---")
+    st.markdown("**Case: Bankdata — bank size, regression and robustness**")
+    tool_badges(["Python", "Regression", "Interaction terms", "Sensitivity analysis"])
+    with st.expander("View the Bankdata technical workflow"):
+        st.markdown(
+            "**Prepare in Excel / Power Query** — structure financial data, calculate KPIs, "
+            "attach group and sample flags, and distinguish bank-year observations from bank-level values."
+        )
+        st.markdown(
+            "**Model in Python** — test affiliation with bank size as a control, then add "
+            "affiliation-by-size interactions to test moderation. Compare the relevant sample "
+            "specifications rather than selecting only the most significant model."
+        )
+        st.markdown(
+            "**Report** — keep coefficients, uncertainty, model fit, sample definitions, and "
+            "business interpretation together. Treat the models as association analysis."
+        )
+        st.caption("Method summary; no reconstructed code is presented as the original analysis script.")
+        st.page_link("pages/5_Research_Based_Problem_Solving.py", label="Read the Bankdata research case →")
+        download_bankdata_case()
+
 # --- F · Statistics ---
 with tab_f:
     eyebrow("Section F")
@@ -635,6 +670,22 @@ with tab_f:
 
     with st.expander("View full statistical & research methods reference"):
         render_grouped(STATS_METHODS)
+
+    st.markdown("---")
+    st.markdown("**Bankdata — matching the test to the question**")
+    with st.expander("View financial benchmarking methods and their purpose"):
+        st.markdown("""
+| Method | Purpose in Case 2 |
+| --- | --- |
+| Group medians | Describe typical KPI levels while limiting the influence of extreme values. |
+| Kruskal–Wallis | Test rank-based distributional differences across the three groups; it is not automatically a test of medians. |
+| Effect size | Describe the magnitude of group differences alongside statistical significance. |
+| Dunn's post-hoc comparisons | Identify relevant pairwise differences after an appropriate overall test, accounting for multiple comparisons. |
+| Bank-level / mortgage sensitivity checks | Assess whether the observation unit or sample composition changes the interpretation. |
+| Size-adjusted regression | Examine affiliation differences while accounting for bank size. |
+| Affiliation × size interactions | Test whether the association changes with bank size. |
+""")
+        st.caption("Operational mediation is a future research proposal, not a completed test in Case 2.")
 
 # --- G · KPIs & Formulas ---
 with tab_g:

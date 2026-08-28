@@ -54,6 +54,20 @@ def download_button_for(filename, label):
         st.caption(f"Add `{path}` to enable this download.")
 
 
+def download_bankdata_case():
+    # Case 2 is stored directly under assets, not assets/files.
+    path = os.path.join(_PROJECT_ROOT, "assets", "Bankdata_benchmark.zip")
+    if os.path.isfile(path):
+        with open(path, "rb") as f:
+            st.download_button(
+                "Download Bankdata Case 2 (ZIP)", data=f,
+                file_name="Bankdata_benchmark.zip", mime="application/zip",
+                key="bankdata_case2_download",
+            )
+    else:
+        st.caption("Add `assets/Bankdata_benchmark.zip` to enable the case download.")
+
+
 # -----------------------------------------------------------------------
 # CASE DATA
 # -----------------------------------------------------------------------
@@ -394,6 +408,33 @@ with tab_b:
         "Power BI pages (data accuracy, industry benchmarks, company drill-down), built from "
         "`EY_DuPont.xls`."
     )
+
+    st.markdown("---")
+    st.markdown(
+        case_card_html(
+            "Bankdata Case 2 — Financial Performance Benchmarking",
+            "How does bank performance differ across data centre groups, and how comparable are those results?",
+            ["Excel", "Power Query", "Python", "Financial KPIs"],
+            "ROE · ROA · Cost-to-income · Revenue per employee",
+        ), unsafe_allow_html=True,
+    )
+    with st.expander("View the financial benchmarking perspective"):
+        st.markdown(
+            "**Accounting contribution**  \nPrepared bank financial data, calculated four performance "
+            "KPIs, and compared group medians. The analysis considers profitability, cost efficiency, "
+            "and employee productivity together rather than treating one ratio as overall performance."
+        )
+        st.markdown(
+            "**Comparability**  \nBank size, mortgage affiliation, repeated observations, and merger "
+            "history can influence the comparison. Sensitivity analysis helps distinguish an "
+            "observed financial pattern from a defensible claim about data centre affiliation."
+        )
+        st.markdown(
+            "**Decision supported**  \nGive Bankdata a qualified benchmarking narrative for customer "
+            "discussions, without presenting financial differences as proof of provider impact."
+        )
+        st.page_link("pages/5_Research_Based_Problem_Solving.py", label="Read the full Bankdata Case 2 research →")
+        download_bankdata_case()
 
 with tab_c:
     eyebrow("Section C")
