@@ -64,6 +64,18 @@ def show_image(filename, caption=""):
             st.caption(f"Screenshot placeholder — add `{path}` to your repo to display it here.")
 
 
+def show_bankdata_image(stem, caption):
+    """Resolve screenshot extensions hidden by Windows Explorer."""
+    names = sorted(os.listdir(IMG_DIR)) if os.path.isdir(IMG_DIR) else []
+    filename = next(
+        (name for name in names
+         if os.path.splitext(name)[0].casefold() == stem.casefold()
+         and os.path.splitext(name)[1].lower() in {".png", ".jpg", ".jpeg", ".webp"}),
+        stem + ".png",
+    )
+    show_image(filename, caption)
+
+
 def _inline_md(text):
     """Lightweight **bold** / *italic* -> HTML, since this text sits inside a raw HTML block."""
     text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text)
@@ -313,48 +325,78 @@ def render_case_card(case):
     )
 
 
-# -----------------------------------------------------------------------
-# BANKDATA CASE 2 — same shared cards, tabs and expanders as the existing case
-# -----------------------------------------------------------------------
+# Page-local distinction: outer case tabs retain the shared theme.
+# Only nested analysis tabs receive the softer sage treatment.
+st.markdown("""
+<style>
+.stTabs .stTabs [data-baseweb="tab"] {
+    background-color: #F7F8F4;
+    font-size: 0.9rem;
+    border-radius: 6px 6px 0 0;
+}
+.stTabs .stTabs [data-baseweb="tab"][aria-selected="true"],
+.stTabs .stTabs [data-baseweb="tab"][aria-selected="true"]:hover {
+    background-color: #E2E8DC !important;
+    color: #141414 !important;
+    box-shadow: inset 0 -3px 0 #64745B;
+}
+.stTabs .stTabs [data-baseweb="tab"][aria-selected="true"] p,
+.stTabs .stTabs [data-baseweb="tab"][aria-selected="true"] div {
+    color: #141414 !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
-eyebrow("Bankdata · Case 2")
-st.markdown(
-    case_card_html(
-        "Investigating Data Centre Affiliation and Bank Performance",
-        "What can differences in bank performance tell Bankdata about its positioning, "
-        "and what further evidence is needed to assess its contribution?",
-        ["Excel", "Power Query", "Python", "Financial benchmarking", "Robustness analysis"],
-        "3 data centre groups · 4 financial KPIs · Bank size as a control and moderator",
-    ),
-    unsafe_allow_html=True,
-)
-st.caption(
-    "Individual case project — I prepared the data, analysed financial performance, "
-    "tested alternative specifications, and translated the findings into implications for Bankdata."
-)
-bd_a, bd_b, bd_c, bd_d, bd_e = st.tabs([
-    "A · Business Problem", "B · Analysis Logic", "C · Evidence & Limits",
-    "D · Further Research", "E · Implications & Files",
+case_bankdata, case_burnout = st.tabs([
+    "Bankdata · Bank Performance", "Employee Burnout · People Analytics",
 ])
-with bd_a:
-    eyebrow("Section A")
-    st.subheader("From Bank Benchmarking to a Business Question")
-    with st.expander("View the business problem", expanded=True):
-        st.markdown(
-            "**Context**  \nBanks use different data centre providers, but their financial results "
-            "also reflect size, business model, and organisational changes. Comparing results alone "
-            "cannot isolate the provider's contribution."
+
+with case_bankdata:
+    # -----------------------------------------------------------------------
+    # BANKDATA CASE 2 — same shared cards, tabs and expanders as the existing case
+    # -----------------------------------------------------------------------
+
+    eyebrow("Bankdata · Case 2")
+    st.markdown(
+        case_card_html(
+            "Investigating Data Centre Affiliation and Bank Performance",
+            "What can differences in bank performance tell Bankdata about its positioning, "
+            "and what further evidence is needed to assess its contribution?",
+            ["Excel", "Power Query", "Python", "Financial benchmarking", "Robustness analysis"],
+            "3 data centre groups · 4 financial KPIs · Bank size as a control and moderator",
+        ),
+        unsafe_allow_html=True,
+    )
+    st.caption(
+        "Individual case project — I prepared the data, analysed financial performance, "
+        "tested alternative specifications, and translated the findings into implications for Bankdata."
+    )
+    bd_a, bd_b, bd_c, bd_d, bd_e = st.tabs([
+        "A · Business Problem", "B · Analysis Logic", "C · Evidence & Limits",
+        "D · Further Research", "E · Implications & Files",
+    ])
+    with bd_a:
+        eyebrow("Section A")
+        st.subheader("From Bank Benchmarking to a Business Question")
+        with st.expander("View the business problem", expanded=True):
+            st.markdown(
+                "**Context**  \nBanks use different data centre providers, but their financial results "
+                "also reflect size, business model, and organisational changes. Comparing results alone "
+                "cannot isolate the provider's contribution."
+            )
+            st.markdown(
+                "**Bankdata's perspective**  \nThe aim is to understand whether observed performance "
+                "differences offer credible evidence for customer discussions, and where Bankdata "
+                "needs more direct operational evidence before making stronger claims."
+            )
+        show_bankdata_image(
+            "bankdata_marketshare", "Market share overview — context, not a financial performance KPI",
         )
-        st.markdown(
-            "**Bankdata's perspective**  \nThe aim is to understand whether observed performance "
-            "differences offer credible evidence for customer discussions, and where Bankdata "
-            "needs more direct operational evidence before making stronger claims."
-        )
-with bd_b:
-    eyebrow("Section B")
-    st.subheader("How the Research Question Was Tested")
-    with st.expander("View the analytical sequence", expanded=True):
-        st.markdown("""
+    with bd_b:
+        eyebrow("Section B")
+        st.subheader("How the Research Question Was Tested")
+        with st.expander("View the analytical sequence", expanded=True):
+            st.markdown("""
 | Step | Question and method | Why it matters |
 | --- | --- | --- |
 | Baseline comparison | Calculate ROE, ROA, cost-to-income, and revenue per employee; compare Bankdata, BEC, and Netcompany. | Establish the observed pattern before sensitivity adjustments. |
@@ -364,270 +406,280 @@ with bd_b:
 | Bank size as a moderator | Add affiliation-by-size interaction terms. | Ask whether the association varies with bank size. |
 | Interpretation | Compare findings across specifications and identify missing operational evidence. | Define what Bankdata can responsibly use in its positioning. |
 """)
-        st.caption(
-            "The baseline still requires data preparation and KPI calculation. Bank-level aggregation "
-            "changes the unit of analysis and reduces unequal weighting from repeated years. "
-            "Merger treatment is a separate comparability issue; its completed checks should be "
-            "read from the final case package, not assumed from the design alone."
+            st.caption(
+                "The baseline still requires data preparation and KPI calculation. Bank-level aggregation "
+                "changes the unit of analysis and reduces unequal weighting from repeated years. "
+                "Merger treatment is a separate comparability issue; its completed checks should be "
+                "read from the final case package, not assumed from the design alone."
+            )
+    with bd_c:
+        eyebrow("Section C")
+        st.subheader("What the Evidence Can Support")
+        st.info(
+            "**Observed differences are not proof that a data centre causes better bank performance.** "
+            "The strength of the case lies in checking whether the interpretation survives changes "
+            "in the sample, unit of analysis, and treatment of bank size."
         )
-with bd_c:
-    eyebrow("Section C")
-    st.subheader("What the Evidence Can Support")
-    st.info(
-        "**Observed differences are not proof that a data centre causes better bank performance.** "
-        "The strength of the case lies in checking whether the interpretation survives changes "
-        "in the sample, unit of analysis, and treatment of bank size."
+        show_bankdata_image(
+            "Bankdata_association", "Data centre affiliation and bank performance — dashboard evidence",
+        )
+        with st.expander("View interpretation and limitations"):
+            st.markdown(
+                "**Sensitivity matters**  \nIn the analysis, some group differences became less "
+                "statistically clear after moving from repeated bank-year observations to bank-level "
+                "values. Mortgage exclusions also changed the evidence for some KPIs. A single ranking "
+                "therefore does not capture the full result."
+            )
+            st.markdown(
+                "**Read the tests together**  \nGroup medians describe performance; rank tests assess "
+                "distributional differences; effect sizes describe their magnitude. Regression and "
+                "interaction models address different questions about bank size."
+            )
+            st.markdown(
+                "**Limits**  \nProvider selection is not random. Bank strategy, customer mix, mergers, "
+                "and other unobserved factors can affect results. Financial KPIs alone do not measure "
+                "the quality or operational impact of a data centre."
+            )
+            st.caption("See the case package for the detailed result tables and final specifications.")
+    with bd_d:
+        eyebrow("Section D")
+        st.subheader("The Next Evidence Bankdata Needs")
+        show_bankdata_image(
+            "Bankdata_connection", "Proposed connection between data centre services and bank outcomes",
+        )
+        show_bankdata_image(
+            "Bankdata_purposedMeasurement", "Proposed measurement framework for further research",
+        )
+        with st.expander("View the proposed operational research"):
+            st.markdown(
+                "**Proposed pathway — not tested here**  \nData centre services → bank operational "
+                "performance → bank financial performance. Operational performance is a proposed "
+                "mediator, not a demonstrated mechanism in this dataset."
+            )
+            st.markdown(
+                "**Quantitative follow-up**  \nCollect comparable measures over time, such as service "
+                "availability, incident resolution time, processing time, automation rate, and cost "
+                "per transaction. Agree definitions and denominators with participating banks before "
+                "linking these measures to financial outcomes."
+            )
+            st.markdown(
+                "**Qualitative follow-up**  \nUse interviews and surveys with bank operations and IT "
+                "stakeholders to understand how services affect daily work, where benefits arise, "
+                "and which constraints prevent those benefits from reaching financial results."
+            )
+            st.caption("This is a proposed follow-up design; operational data collection and mediation testing remain future work.")
+    with bd_e:
+        eyebrow("Section E")
+        st.subheader("Implications for Bankdata")
+        st.markdown(
+            "Use financial benchmarking to start informed customer conversations, report sensitivity "
+            "alongside headline comparisons, and build direct operational evidence before claiming "
+            "a provider-driven performance advantage."
+        )
+        download_bankdata_case()
+        st.page_link("pages/2_Accounting_and_Performance_Insights.py", label="Financial benchmarking perspective →")
+        st.page_link("pages/6_Technical_Skills_and_Code_Gallery.py", label="Analytical methods and technical workflow →")
+
+
+with case_burnout:
+    eyebrow("Employee burnout · Research case")
+    st.subheader("Reducing Burnout Risk in a Hybrid, AI-Enabled Company")
+
+    # -----------------------------------------------------------------------
+    # TABS — SECTIONS A / B / C / D / E
+    # -----------------------------------------------------------------------
+
+    tab_a, tab_b, tab_c, tab_d, tab_e = st.tabs(
+        [
+            "A · Business Problem",
+            "B · Quantitative Evidence",
+            "C · Qualitative Follow-Up",
+            "D · VIVA Discussion",
+            "E · Recommendations",
+        ]
     )
-    with st.expander("View interpretation and limitations"):
-        st.markdown(
-            "**Sensitivity matters**  \nIn the analysis, some group differences became less "
-            "statistically clear after moving from repeated bank-year observations to bank-level "
-            "values. Mortgage exclusions also changed the evidence for some KPIs. A single ranking "
-            "therefore does not capture the full result."
-        )
-        st.markdown(
-            "**Read the tests together**  \nGroup medians describe performance; rank tests assess "
-            "distributional differences; effect sizes describe their magnitude. Regression and "
-            "interaction models address different questions about bank size."
-        )
-        st.markdown(
-            "**Limits**  \nProvider selection is not random. Bank strategy, customer mix, mergers, "
-            "and other unobserved factors can affect results. Financial KPIs alone do not measure "
-            "the quality or operational impact of a data centre."
-        )
-        st.caption("See the case package for the detailed result tables and final specifications.")
-with bd_d:
-    eyebrow("Section D")
-    st.subheader("The Next Evidence Bankdata Needs")
-    with st.expander("View the proposed operational research"):
-        st.markdown(
-            "**Proposed pathway — not tested here**  \nData centre services → bank operational "
-            "performance → bank financial performance. Operational performance is a proposed "
-            "mediator, not a demonstrated mechanism in this dataset."
-        )
-        st.markdown(
-            "**Quantitative follow-up**  \nCollect comparable measures over time, such as service "
-            "availability, incident resolution time, processing time, automation rate, and cost "
-            "per transaction. Agree definitions and denominators with participating banks before "
-            "linking these measures to financial outcomes."
-        )
-        st.markdown(
-            "**Qualitative follow-up**  \nUse interviews and surveys with bank operations and IT "
-            "stakeholders to understand how services affect daily work, where benefits arise, "
-            "and which constraints prevent those benefits from reaching financial results."
-        )
-        st.caption("This is a proposed follow-up design; operational data collection and mediation testing remain future work.")
-with bd_e:
-    eyebrow("Section E")
-    st.subheader("Implications for Bankdata")
-    st.markdown(
-        "Use financial benchmarking to start informed customer conversations, report sensitivity "
-        "alongside headline comparisons, and build direct operational evidence before claiming "
-        "a provider-driven performance advantage."
-    )
-    download_bankdata_case()
-    st.page_link("pages/2_Accounting_and_Performance_Insights.py", label="Financial benchmarking perspective →")
-    st.page_link("pages/6_Technical_Skills_and_Code_Gallery.py", label="Analytical methods and technical workflow →")
 
-st.markdown("---")
-eyebrow("Employee burnout · Research case")
-st.subheader("Reducing Burnout Risk in a Hybrid, AI-Enabled Company")
+    with tab_a:
+        eyebrow("Section A")
+        st.subheader("The Business Problem")
+        render_case_card(BURNOUT)
+        with st.expander("View full case study", expanded=True):
+            d = BURNOUT["detail"]
+            fname, caption = BURNOUT["images"][0]
+            float_block(fname, caption, [d["goal"]])
 
-# -----------------------------------------------------------------------
-# TABS — SECTIONS A / B / C / D / E
-# -----------------------------------------------------------------------
-
-tab_a, tab_b, tab_c, tab_d, tab_e = st.tabs(
-    [
-        "A · Business Problem",
-        "B · Quantitative Evidence",
-        "C · Qualitative Follow-Up",
-        "D · VIVA Discussion",
-        "E · Recommendations",
-    ]
-)
-
-with tab_a:
-    eyebrow("Section A")
-    st.subheader("The Business Problem")
-    render_case_card(BURNOUT)
-    with st.expander("View full case study", expanded=True):
+    with tab_b:
+        eyebrow("Section B")
+        st.subheader("Quantitative Evidence — What the Data Showed")
         d = BURNOUT["detail"]
-        fname, caption = BURNOUT["images"][0]
-        float_block(fname, caption, [d["goal"]])
 
-with tab_b:
-    eyebrow("Section B")
-    st.subheader("Quantitative Evidence — What the Data Showed")
-    d = BURNOUT["detail"]
-
-    st.markdown(
-        "We validated the survey measures first, then tested which factors actually predict "
-        "burnout versus which just look related on the surface. **Bottom line: stress — not "
-        "deadlines — is the real driver, and manager support/autonomy don't buffer high-pressure "
-        "periods the way we expected.**"
-    )
-
-    # Lead visual: the core mechanism being tested, shown before the fold
-    fname, caption = BURNOUT["path_image"]
-    float_block(fname, caption, [
-        "Before running any statistics, this is the mechanism we set out to test: do job "
-        "demands (deadline pressure, work hours) drive burnout directly, or mainly through "
-        "stress — and do job resources (manager support, autonomy) act as a buffer along the way?",
-    ])
-
-    with st.expander("View the full quantitative analysis (correlation, regression, mediation & moderation)"):
-        st.markdown(f"**Process**  \n{d['process']}")
-        st.markdown(f"**Tools**  \n{d['tools']}")
-
-        st.markdown("---")
-
-        fname, caption = BURNOUT["images"][1]  # correlation matrix
-        float_block(fname, caption, [
-            "**The correlation matrix** was the first check — it showed burnout was most "
-            "strongly linked to stress and weekly work hours, with manager support and "
-            "autonomy moving in the opposite direction. This is what pointed us toward "
-            "testing stress as a mediator rather than treating deadline pressure as the "
-            "direct cause.",
-        ])
-
-        fname, caption = BURNOUT["images"][2]  # extended regression overview
-        fname2, caption2 = BURNOUT["images"][3]  # extended regression full predictor tables
-        float_block(fname, caption, [
-            "**The extended regression** confirmed it: once stress is added to the model, "
-            "it becomes the strongest predictor of burnout, and the model's explanatory "
-            "power roughly doubles — evidence this isn't just a deadline problem. The full "
-            "predictor tables show deadline pressure's effect flipping from significant to "
-            "non-significant once stress enters the model — the clearest single piece of "
-            "evidence for the mediation story.",
-        ])
-        show_image(fname2, caption2)
-
-        fname, caption = BURNOUT["mod_image"]
-        float_block(fname, caption, [
-            "**Mediation and moderation testing** confirmed the mechanism: deadline "
-            "pressure → stress → burnout is a full mediation (indirect effect β=.116, "
-            "p<.001), meaning deadline pressure only matters *through* stress. Manager "
-            "support and autonomy reduce burnout directly, but neither one significantly "
-            "buffers the deadline-pressure pathway — so they help overall, without "
-            "specifically protecting people during high-pressure periods.",
-        ])
-
-        st.markdown("---")
-        st.markdown(f"**Challenges**  \n{d['challenges']}")
-        st.markdown(f"**Outcomes**  \n{d['outcomes']}")
-
-with tab_c:
-    eyebrow("Section C")
-    st.subheader("Qualitative Follow-Up — What We Still Needed to Ask Employees")
-    f = BURNOUT["followup"]
-
-    st.markdown(
-        "Statistics tell you *what* is related to burnout, not *why* it happens in daily "
-        "work — so the qualitative phase comes after the modelling, not before it, and the "
-        "strongest survey paths set the focus of the interview questions."
-    )
-
-    with st.expander("View the interview and focus group design"):
-        st.markdown(f["why"])
-        st.markdown(_inline_md(f["bridge"]), unsafe_allow_html=True)
-
-        st.markdown("**Open questions the numbers couldn't answer:**")
-        for q in f["questions"]:
-            st.markdown(f"- {q}")
-
-        st.markdown("---")
-
-        ed = f["employee_design"]
-        float_block(
-            "p5_employee_research.png",
-            "Employee interview design: purposive sampling on CFA burnout scores, contrasting "
-            "high- vs low-burnout groups",
-            [
-                "#### Employee interviews",
-                f"**Design logic**  \n{ed['logic']}",
-                f"**Sampling**  \n{ed['sampling']}",
-                f"**Why it matters**  \n{ed['why_it_matters']}",
-            ],
+        st.markdown(
+            "We validated the survey measures first, then tested which factors actually predict "
+            "burnout versus which just look related on the surface. **Bottom line: stress — not "
+            "deadlines — is the real driver, and manager support/autonomy don't buffer high-pressure "
+            "periods the way we expected.**"
         )
 
-        st.markdown("---")
+        # Lead visual: the core mechanism being tested, shown before the fold
+        fname, caption = BURNOUT["path_image"]
+        float_block(fname, caption, [
+            "Before running any statistics, this is the mechanism we set out to test: do job "
+            "demands (deadline pressure, work hours) drive burnout directly, or mainly through "
+            "stress — and do job resources (manager support, autonomy) act as a buffer along the way?",
+        ])
 
-        md = f["manager_design"]
-        float_block(
-            "p5_manager_research.png",
-            "Manager focus group and diary study design",
-            [
-                "#### Manager focus groups",
-                f"**Design logic**  \n{md['logic']}",
-                f"**Design**  \n{md['design']}",
-                f"**Why it matters**  \n{md['why_it_matters']}",
-            ],
+        with st.expander("View the full quantitative analysis (correlation, regression, mediation & moderation)"):
+            st.markdown(f"**Process**  \n{d['process']}")
+            st.markdown(f"**Tools**  \n{d['tools']}")
+
+            st.markdown("---")
+
+            fname, caption = BURNOUT["images"][1]  # correlation matrix
+            float_block(fname, caption, [
+                "**The correlation matrix** was the first check — it showed burnout was most "
+                "strongly linked to stress and weekly work hours, with manager support and "
+                "autonomy moving in the opposite direction. This is what pointed us toward "
+                "testing stress as a mediator rather than treating deadline pressure as the "
+                "direct cause.",
+            ])
+
+            fname, caption = BURNOUT["images"][2]  # extended regression overview
+            fname2, caption2 = BURNOUT["images"][3]  # extended regression full predictor tables
+            float_block(fname, caption, [
+                "**The extended regression** confirmed it: once stress is added to the model, "
+                "it becomes the strongest predictor of burnout, and the model's explanatory "
+                "power roughly doubles — evidence this isn't just a deadline problem. The full "
+                "predictor tables show deadline pressure's effect flipping from significant to "
+                "non-significant once stress enters the model — the clearest single piece of "
+                "evidence for the mediation story.",
+            ])
+            show_image(fname2, caption2)
+
+            fname, caption = BURNOUT["mod_image"]
+            float_block(fname, caption, [
+                "**Mediation and moderation testing** confirmed the mechanism: deadline "
+                "pressure → stress → burnout is a full mediation (indirect effect β=.116, "
+                "p<.001), meaning deadline pressure only matters *through* stress. Manager "
+                "support and autonomy reduce burnout directly, but neither one significantly "
+                "buffers the deadline-pressure pathway — so they help overall, without "
+                "specifically protecting people during high-pressure periods.",
+            ])
+
+            st.markdown("---")
+            st.markdown(f"**Challenges**  \n{d['challenges']}")
+            st.markdown(f"**Outcomes**  \n{d['outcomes']}")
+
+    with tab_c:
+        eyebrow("Section C")
+        st.subheader("Qualitative Follow-Up — What We Still Needed to Ask Employees")
+        f = BURNOUT["followup"]
+
+        st.markdown(
+            "Statistics tell you *what* is related to burnout, not *why* it happens in daily "
+            "work — so the qualitative phase comes after the modelling, not before it, and the "
+            "strongest survey paths set the focus of the interview questions."
         )
 
-with tab_d:
-    eyebrow("Section D")
-    st.subheader("Should Annual Surveys Be Replaced by Microsoft Viva Insights?")
-    st.markdown(VIVA["intro"])
-    st.markdown(f"**Bottom line:** {VIVA['recommendation']}")
+        with st.expander("View the interview and focus group design"):
+            st.markdown(f["why"])
+            st.markdown(_inline_md(f["bridge"]), unsafe_allow_html=True)
 
-    with st.expander("View the full strengths/weaknesses, validity, reliability & ethics comparison"):
-        st.markdown("**Strengths vs. weaknesses**")
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("*Viva strengths*")
-            for s in VIVA["strengths_weaknesses"]["strengths"]:
-                st.markdown(f"- {s}")
-        with col2:
-            st.markdown("*What Viva misses*")
-            for w in VIVA["strengths_weaknesses"]["weaknesses"]:
-                st.markdown(f"- {w}")
+            st.markdown("**Open questions the numbers couldn't answer:**")
+            for q in f["questions"]:
+                st.markdown(f"- {q}")
 
-        st.markdown("---")
+            st.markdown("---")
 
-        fname, caption = VIVA["validity_image"]
-        float_block(fname, caption, [f"**Validity**  \n{VIVA['validity']}"])
+            ed = f["employee_design"]
+            float_block(
+                "p5_employee_research.png",
+                "Employee interview design: purposive sampling on CFA burnout scores, contrasting "
+                "high- vs low-burnout groups",
+                [
+                    "#### Employee interviews",
+                    f"**Design logic**  \n{ed['logic']}",
+                    f"**Sampling**  \n{ed['sampling']}",
+                    f"**Why it matters**  \n{ed['why_it_matters']}",
+                ],
+            )
 
-        fname, caption = VIVA["reliability_image"]
-        float_block(fname, caption, [f"**Reliability**  \n{VIVA['reliability']}"], side="left")
+            st.markdown("---")
 
-        fname, caption = VIVA["ethics_image"]
-        float_block(fname, caption, [f"**Ethical considerations**  \n{VIVA['ethics']}"])
+            md = f["manager_design"]
+            float_block(
+                "p5_manager_research.png",
+                "Manager focus group and diary study design",
+                [
+                    "#### Manager focus groups",
+                    f"**Design logic**  \n{md['logic']}",
+                    f"**Design**  \n{md['design']}",
+                    f"**Why it matters**  \n{md['why_it_matters']}",
+                ],
+            )
 
-        st.markdown(f"**Implementation challenges**  \n{VIVA['implementation']}")
+    with tab_d:
+        eyebrow("Section D")
+        st.subheader("Should Annual Surveys Be Replaced by Microsoft Viva Insights?")
+        st.markdown(VIVA["intro"])
+        st.markdown(f"**Bottom line:** {VIVA['recommendation']}")
 
-        st.markdown("---")
+        with st.expander("View the full strengths/weaknesses, validity, reliability & ethics comparison"):
+            st.markdown("**Strengths vs. weaknesses**")
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("*Viva strengths*")
+                for s in VIVA["strengths_weaknesses"]["strengths"]:
+                    st.markdown(f"- {s}")
+            with col2:
+                st.markdown("*What Viva misses*")
+                for w in VIVA["strengths_weaknesses"]["weaknesses"]:
+                    st.markdown(f"- {w}")
 
-        fname, caption = VIVA["rec_image"]
-        float_block(fname, caption, [f"**Recommendation**  \n{VIVA['recommendation']}"])
+            st.markdown("---")
 
-with tab_e:
-    eyebrow("Section E")
-    st.subheader("What the Company Should Do")
+            fname, caption = VIVA["validity_image"]
+            float_block(fname, caption, [f"**Validity**  \n{VIVA['validity']}"])
 
-    st.markdown(
-        "A prioritized, evidence-backed action list — split into what to keep measuring and "
-        "what to actually change in how people work."
-    )
+            fname, caption = VIVA["reliability_image"]
+            float_block(fname, caption, [f"**Reliability**  \n{VIVA['reliability']}"], side="left")
 
-    with st.expander("View the full recommendations"):
-        st.markdown("**Quantitative — what to keep measuring**")
-        for i, r in enumerate(BURNOUT["quant_recommendations"], start=1):
-            st.markdown(f"{i}. {r}")
+            fname, caption = VIVA["ethics_image"]
+            float_block(fname, caption, [f"**Ethical considerations**  \n{VIVA['ethics']}"])
 
-        st.markdown("")
-        st.markdown("**Qualitative — what to change in how people work**")
-        for i, r in enumerate(BURNOUT["qual_recommendations"], start=1):
-            st.markdown(f"{i}. {r}")
+            st.markdown(f"**Implementation challenges**  \n{VIVA['implementation']}")
 
-        st.caption("See the **D · VIVA Discussion** tab for the survey-vs-behavioral-tracking recommendation.")
+            st.markdown("---")
 
-st.markdown("---")
+            fname, caption = VIVA["rec_image"]
+            float_block(fname, caption, [f"**Recommendation**  \n{VIVA['recommendation']}"])
 
-# -----------------------------------------------------------------------
-# DOWNLOADS
-# -----------------------------------------------------------------------
+    with tab_e:
+        eyebrow("Section E")
+        st.subheader("What the Company Should Do")
 
-eyebrow("Resources")
-st.subheader("Downloads")
-download_button_for(BURNOUT["download"], "Download full methodology deck (PDF)")
+        st.markdown(
+            "A prioritized, evidence-backed action list — split into what to keep measuring and "
+            "what to actually change in how people work."
+        )
+
+        with st.expander("View the full recommendations"):
+            st.markdown("**Quantitative — what to keep measuring**")
+            for i, r in enumerate(BURNOUT["quant_recommendations"], start=1):
+                st.markdown(f"{i}. {r}")
+
+            st.markdown("")
+            st.markdown("**Qualitative — what to change in how people work**")
+            for i, r in enumerate(BURNOUT["qual_recommendations"], start=1):
+                st.markdown(f"{i}. {r}")
+
+            st.caption("See the **D · VIVA Discussion** tab for the survey-vs-behavioral-tracking recommendation.")
+
+    st.markdown("---")
+
+    # -----------------------------------------------------------------------
+    # DOWNLOADS
+    # -----------------------------------------------------------------------
+
+    eyebrow("Resources")
+    st.subheader("Downloads")
+    download_button_for(BURNOUT["download"], "Download full methodology deck (PDF)")

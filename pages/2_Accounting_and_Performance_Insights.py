@@ -433,6 +433,28 @@ with tab_b:
             "**Decision supported**  \nGive Bankdata a qualified benchmarking narrative for customer "
             "discussions, without presenting financial differences as proof of provider impact."
         )
+        st.markdown("---")
+        st.markdown("**Dashboard evidence**")
+        # Explorer hides extensions; accept common image types and case variants.
+        bankdata_images = [
+            ("bankdata_marketshare", "Bankdata — market share overview (context for the comparison)"),
+            ("Bankdata_association", "Bankdata — data centre affiliation and bank performance analysis"),
+        ]
+        available_images = sorted(os.listdir(IMG_DIR)) if os.path.isdir(IMG_DIR) else []
+        for stem, caption in bankdata_images:
+            filename = next(
+                (
+                    name for name in available_images
+                    if os.path.splitext(name)[0].casefold() == stem.casefold()
+                    and os.path.splitext(name)[1].lower() in {".png", ".jpg", ".jpeg", ".webp"}
+                ),
+                stem + ".png",
+            )
+            show_image(filename, caption)
+        st.caption(
+            "Market share provides context; it is not one of the four financial performance KPIs."
+        )
+
         st.page_link("pages/5_Research_Based_Problem_Solving.py", label="Read the full Bankdata Case 2 research →")
         download_bankdata_case()
 
