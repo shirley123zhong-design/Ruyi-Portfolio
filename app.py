@@ -6,7 +6,9 @@ from pathlib import Path
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(os.path.dirname(os.path.abspath(__file__)))  # ensure relative asset paths work no matter where streamlit was launched from
-from theme import apply_theme, eyebrow, nav_card_html
+from theme import apply_theme, eyebrow
+from components.logic_map import render_logic_map
+from components.project_carousel import render_project_carousel
 
 st.set_page_config(
     page_title="Ruyi Zhong(Shirley) | Portfolio",
@@ -15,20 +17,40 @@ st.set_page_config(
 )
 apply_theme()
 
+# --- HOME PAGE LAYOUT: tighter sections, larger text, key-phrase highlights, phone tweaks ---
+st.markdown(
+    """
+<style>
+.block-container{padding-top:4.2rem !important;}
+[data-testid="stVerticalBlock"]{gap:0.7rem;}
+hr{margin:16px 0 !important;}
+.stApp h3{padding-top:0.15rem !important;padding-bottom:0.45rem !important;}
+.eyebrow{margin-bottom:2px;}
+.stApp .home-name{font-family:'Archivo',sans-serif !important;font-weight:800 !important;font-size:clamp(2rem,5.5vw,2.6rem) !important;letter-spacing:0.01em;line-height:1.1 !important;margin:8px 0 0 0 !important;color:#141414 !important;}
+.stApp .home-lead{font-size:1.25rem !important;font-weight:700 !important;color:#141414 !important;line-height:1.45 !important;margin:4px 0 8px 0 !important;}
+.stApp .home-body{font-size:1.08rem !important;line-height:1.7 !important;color:#333 !important;max-width:920px;margin:0 !important;}
+.stApp .hl{font-weight:600;color:#141414 !important;background:linear-gradient(transparent 60%,#E4E1DA 60%);padding:0 2px;}
+.tag-row{margin:6px 0 2px 0;}
+.tag-pill{font-size:0.86rem;}
+[data-testid="stMarkdownContainer"] p strong{font-size:1.05rem;}
+[data-testid="stCaptionContainer"] p{font-size:0.98rem !important;}
+@media (max-width:640px){
+  .block-container{padding-left:1.1rem !important;padding-right:1.1rem !important;padding-top:4rem !important;}
+  .stApp .home-lead{font-size:1.15rem !important;}
+  .stApp .home-body{font-size:1.02rem !important;}
+  .photo-collage{width:150px !important;height:170px !important;margin:0 auto !important;}
+}
+</style>
+""",
+    unsafe_allow_html=True,
+)
+
 # --- HEADER ---
 col1, col2 = st.columns([2, 1])
 
 with col1:
     eyebrow("Portfolio")
-    st.markdown(
-        """
-        <p style="font-family:'Archivo',sans-serif; font-weight:800; font-size:2.5rem;
-                   letter-spacing:0.01em; margin-bottom:0; color:#141414;">
-            Ruyi Zhong(Shirley)
-        </p>
-        """,
-        unsafe_allow_html=True,
-    )
+    st.markdown('<p class="home-name">Ruyi Zhong(Shirley)</p>', unsafe_allow_html=True)
     st.subheader("MSc Data-Driven Business Development | SDU")
 
     contact_col1, contact_col2 = st.columns([3, 1])
@@ -48,17 +70,13 @@ with col1:
             st.caption(f"Add `{cv_path}` to enable the CV download.")
 
     st.markdown(
-        """
-        <p style="font-size:1.15rem; font-weight:600; color:#141414; line-height:1.5; margin-bottom:6px;">
-        I help organisations make better decisions through data.
-        </p>
-        <p style="color:#444; font-size:1.0rem; line-height:1.6;">
-        Whether that means building dashboards that track performance, analysing financial data
-        to surface risks, or structuring processes to support digital transformation — this
-        portfolio documents how I work: the questions I ask, the tools I use, and the outcomes
-        I deliver.
-        </p>
-        """,
+        '<p class="home-lead">I help organisations make better decisions through data.</p>'
+        '<p class="home-body">Whether that means analysing <span class="hl">profitability</span> to support '
+        'customer and pricing decisions, improving <span class="hl">forecasts</span> for planning, or building '
+        '<span class="hl">dashboards</span> that highlight performance and risks, I connect analysis with practical '
+        'business needs. I also explore how changes to the way <span class="hl">data is shared, managed and used '
+        'across teams</span> could improve collaboration, strengthen control and create new business '
+        'opportunities. This portfolio shows the questions I ask, the tools I use and the recommendations I develop.</p>',
         unsafe_allow_html=True,
     )
 
@@ -160,78 +178,41 @@ with skills_col4:
 
 st.divider()
 
+# --- APPROACH (logic map) ---
+render_logic_map()
+
+st.divider()
+
 # --- NAVIGATION CARDS ---
 eyebrow("Portfolio")
 st.subheader("Explore my work")
-st.caption("Six angles on the same skill set — start wherever's most relevant to the role, or work through in order.")
+st.caption("Six angles on the same skill set. Start wherever's most relevant to the role, or work through in order.")
 
-col1, col2, col3 = st.columns(3)
+CARDS = [
+    {"number": "01 · START HERE", "icon": "📊", "title": "Business Decision Analytics",
+     "description": "Forecasting, regression, customer analytics, and operational insights that support "
+                    "planning, cost decisions, and management recommendations.",
+     "page": "pages/1_Business_Decision_Analytics.py"},
+    {"number": "02", "icon": "🧾", "title": "Accounting & Performance Insights",
+     "description": "Accounting-focused analytics for cost control, financial performance, audit testing, "
+                    "and data-driven management reporting.",
+     "page": "pages/2_Accounting_and_Performance_Insights.py"},
+    {"number": "03", "icon": "🔄", "title": "Digital Transformation & Scaling",
+     "description": "Diagnosing digital transformation gaps and developing practical recommendations across "
+                    "strategy, structure, processes, people, culture, and AI adoption.",
+     "page": "pages/3_Digital_Transformation_and_Scaling.py"},
+    {"number": "04", "icon": "💡", "title": "Market Opportunity & Innovation",
+     "description": "Using trend data, user research, experiments, and MVP testing to identify unmet needs "
+                    "and develop business opportunities.",
+     "page": "pages/4_Market_Opportunity_and_Innovation.py"},
+    {"number": "05", "icon": "🔍", "title": "Research-Based Problem Solving",
+     "description": "Turning business problems into research questions, testing relationships between "
+                    "variables, and translating evidence into management recommendations.",
+     "page": "pages/5_Research_Based_Problem_Solving.py"},
+    {"number": "06", "icon": "🛠️", "title": "Technical Skills & Code Gallery",
+     "description": "Selected technical evidence behind the cases, including Python, SQL, Power BI, Power "
+                    "Query, R, Excel, Streamlit, and machine learning workflows.",
+     "page": "pages/6_Technical_Skills_and_Code_Gallery.py"},
+]
 
-with col1:
-    st.markdown(
-        nav_card_html(
-            "01 · START HERE", "📊", "Business Decision Analytics",
-            "Forecasting, regression, customer analytics, and operational insights that support "
-            "planning, cost decisions, and management recommendations.",
-        ),
-        unsafe_allow_html=True,
-    )
-    st.page_link("pages/1_Business_Decision_Analytics.py", label="Explore →")
-
-    st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
-
-    st.markdown(
-        nav_card_html(
-            "02", "🧾", "Accounting & Performance Insights",
-            "Accounting-focused analytics for cost control, financial performance, audit testing, "
-            "and data-driven management reporting.",
-        ),
-        unsafe_allow_html=True,
-    )
-    st.page_link("pages/2_Accounting_and_Performance_Insights.py", label="Explore →")
-
-with col2:
-    st.markdown(
-        nav_card_html(
-            "03", "🔄", "Digital Transformation & Scaling",
-            "Diagnosing digital transformation gaps and developing practical recommendations across "
-            "strategy, structure, processes, people, culture, and AI adoption.",
-        ),
-        unsafe_allow_html=True,
-    )
-    st.page_link("pages/3_Digital_Transformation_and_Scaling.py", label="Explore →")
-
-    st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
-
-    st.markdown(
-        nav_card_html(
-            "04", "💡", "Market Opportunity & Innovation",
-            "Using trend data, user research, experiments, and MVP testing to identify unmet needs "
-            "and develop business opportunities.",
-        ),
-        unsafe_allow_html=True,
-    )
-    st.page_link("pages/4_Market_Opportunity_and_Innovation.py", label="Explore →")
-
-with col3:
-    st.markdown(
-        nav_card_html(
-            "05", "🔍", "Research-Based Problem Solving",
-            "Turning business problems into research questions, testing relationships between "
-            "variables, and translating evidence into management recommendations.",
-        ),
-        unsafe_allow_html=True,
-    )
-    st.page_link("pages/5_Research_Based_Problem_Solving.py", label="Explore →")
-
-    st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
-
-    st.markdown(
-        nav_card_html(
-            "06", "🛠️", "Technical Skills & Code Gallery",
-            "Selected technical evidence behind the cases, including Python, SQL, Power BI, Power "
-            "Query, R, Excel, Streamlit, and machine learning workflows.",
-        ),
-        unsafe_allow_html=True,
-    )
-    st.page_link("pages/6_Technical_Skills_and_Code_Gallery.py", label="Explore →")
+render_project_carousel(CARDS)
