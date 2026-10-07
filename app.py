@@ -38,7 +38,9 @@ hr{margin:16px 0 !important;}
   .block-container{padding-left:1.1rem !important;padding-right:1.1rem !important;padding-top:4rem !important;}
   .stApp .home-lead{font-size:1.15rem !important;}
   .stApp .home-body{font-size:1.02rem !important;}
-  .photo-collage{width:150px !important;height:170px !important;margin:0 auto !important;}
+  /* phones: photos first, then name and intro */
+  [data-testid="stColumn"]:has(.photo-collage){order:-1;}
+  .photo-collage{width:150px !important;height:170px !important;margin:0 0 6px 0 !important;}
 }
 </style>
 """,

@@ -1,0 +1,8 @@
+# Locks the portfolio to its light, monochrome look so phones and browsers
+# in dark mode don't turn the sidebar menu dark (black text on dark grey).
+[theme]
+base = "light"
+primaryColor = "#141414"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F4F3F1"
+textColor = "#141414"
