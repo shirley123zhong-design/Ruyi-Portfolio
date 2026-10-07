@@ -30,6 +30,10 @@ hr{margin:16px 0 !important;}
 .stApp .home-lead{font-size:1.25rem !important;font-weight:700 !important;color:#141414 !important;line-height:1.45 !important;margin:4px 0 8px 0 !important;}
 .stApp .home-body{font-size:1.08rem !important;line-height:1.7 !important;color:#333 !important;max-width:920px;margin:0 !important;}
 .stApp .hl{font-weight:600;color:#141414 !important;background:linear-gradient(transparent 60%,#E4E1DA 60%);padding:0 2px;}
+.stApp .home-sub{font-family:'Archivo',sans-serif !important;font-weight:700 !important;font-size:clamp(1.3rem,2vw,1.55rem) !important;line-height:1.25 !important;margin:6px 0 8px 0 !important;color:#141414 !important;}
+.stApp .home-contact{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:1rem !important;margin:0 0 10px 0 !important;}
+.stApp .home-contact span{white-space:nowrap;}
+.intro-mob{display:none;}
 .tag-row{margin:6px 0 2px 0;}
 .tag-pill{font-size:0.86rem;}
 [data-testid="stMarkdownContainer"] p strong{font-size:1.05rem;}
@@ -38,49 +42,63 @@ hr{margin:16px 0 !important;}
   .block-container{padding-left:1.1rem !important;padding-right:1.1rem !important;padding-top:4rem !important;}
   .stApp .home-lead{font-size:1.15rem !important;}
   .stApp .home-body{font-size:1.02rem !important;}
-  /* phones: photos first, then name and intro */
-  [data-testid="stColumn"]:has(.photo-collage){order:-1;}
-  .photo-collage{width:150px !important;height:170px !important;margin:0 0 6px 0 !important;}
+  /* phones: subtitle + contact on the left, photos on the right */
+  [data-testid="stHorizontalBlock"]:has(.photo-collage){flex-wrap:nowrap !important;gap:12px !important;align-items:flex-start !important;}
+  [data-testid="stHorizontalBlock"]:has(.photo-collage) > [data-testid="stColumn"]{flex:1 1 auto !important;width:auto !important;min-width:0 !important;}
+  [data-testid="stHorizontalBlock"]:has(.photo-collage) > [data-testid="stColumn"]:has(.photo-collage){flex:0 0 108px !important;width:108px !important;min-width:108px !important;}
+  .photo-collage{width:100px !important;height:124px !important;margin:2px 0 0 0 !important;}
+  /* phones: show one photo only (the black-and-white portrait) */
+  .photo-collage .photo1{display:none !important;}
+  .photo-collage .photo2{top:0 !important;left:0 !important;width:100% !important;height:100% !important;}
+  .intro-desk{display:none;}
+  .intro-mob{display:block;}
+  .stApp .home-sub{font-size:1.05rem !important;}
+  .stApp .home-contact{font-size:0.86rem !important;gap:2px 10px !important;}
 }
 </style>
 """,
     unsafe_allow_html=True,
 )
 
+# Intro text: shown beside the photos on laptops, full width under the header on phones
+INTRO_HTML = (
+    '<p class="home-lead">I help organisations make better decisions through data.</p>'
+    '<p class="home-body">Whether that means analysing <span class="hl">profitability</span> to support '
+    'customer and pricing decisions, improving <span class="hl">forecasts</span> for planning, or building '
+    '<span class="hl">dashboards</span> that highlight performance and risks, I connect analysis with practical '
+    'business needs. I also explore how changes to the way <span class="hl">data is shared, managed and used '
+    'across teams</span> could improve collaboration, strengthen control and create new business '
+    'opportunities. This portfolio shows the questions I ask, the tools I use and the recommendations I develop.</p>'
+)
+
 # --- HEADER ---
-col1, col2 = st.columns([2, 1])
+eyebrow("Portfolio")
+st.markdown('<p class="home-name">Ruyi Zhong(Shirley)</p>', unsafe_allow_html=True)
+
+col1, col2 = st.columns([3, 1])
 
 with col1:
-    eyebrow("Portfolio")
-    st.markdown('<p class="home-name">Ruyi Zhong(Shirley)</p>', unsafe_allow_html=True)
-    st.subheader("MSc Data-Driven Business Development | SDU")
-
-    contact_col1, contact_col2 = st.columns([3, 1])
-    with contact_col1:
-        st.write("📍 Denmark &nbsp;&nbsp; ✉️ shirley123zhong@gmail.com &nbsp;&nbsp; 🔗 [LinkedIn](https://www.linkedin.com/in/ruyi-zhong-a2252a194/)")
-    with contact_col2:
-        cv_path = "assets/files/Shirley - CV.pdf"
-        if os.path.exists(cv_path):
-            with open(cv_path, "rb") as f:
-                st.download_button(
-                    label="📄 Download CV",
-                    data=f,
-                    file_name="Shirley - CV.pdf",
-                    mime="application/pdf"
-                )
-        else:
-            st.caption(f"Add `{cv_path}` to enable the CV download.")
-
     st.markdown(
-        '<p class="home-lead">I help organisations make better decisions through data.</p>'
-        '<p class="home-body">Whether that means analysing <span class="hl">profitability</span> to support '
-        'customer and pricing decisions, improving <span class="hl">forecasts</span> for planning, or building '
-        '<span class="hl">dashboards</span> that highlight performance and risks, I connect analysis with practical '
-        'business needs. I also explore how changes to the way <span class="hl">data is shared, managed and used '
-        'across teams</span> could improve collaboration, strengthen control and create new business '
-        'opportunities. This portfolio shows the questions I ask, the tools I use and the recommendations I develop.</p>',
+        '<p class="home-sub">MSc Data-Driven Business Development | SDU</p>'
+        '<p class="home-contact">'
+        '<span>📍 Denmark</span>'
+        '<span>✉️ <a href="mailto:shirley123zhong@gmail.com">shirley123zhong@gmail.com</a></span>'
+        '<span>🔗 <a href="https://www.linkedin.com/in/ruyi-zhong-a2252a194/" target="_blank">LinkedIn</a></span>'
+        '</p>',
         unsafe_allow_html=True,
     )
+    cv_path = "assets/files/Shirley - CV.pdf"
+    if os.path.exists(cv_path):
+        with open(cv_path, "rb") as f:
+            st.download_button(
+                label="📄 Download CV",
+                data=f,
+                file_name="Shirley - CV.pdf",
+                mime="application/pdf"
+            )
+    else:
+        st.caption(f"Add `{cv_path}` to enable the CV download.")
+    st.markdown(f'<div class="intro-desk">{INTRO_HTML}</div>', unsafe_allow_html=True)
 
 with col2:
     img1_path = "assets/img/profile_1.jpeg"
@@ -93,9 +111,9 @@ with col2:
         <style>
         .photo-collage {{
             position: relative;
-            width: clamp(140px, 30vw, 190px);
-            height: clamp(160px, 34vw, 210px);
-            margin: 8px auto 0 auto;
+            width: clamp(200px, 21vw, 270px);
+            height: clamp(225px, 24vw, 305px);
+            margin: 4px auto 0 auto;
         }}
         .photo-collage img {{
             position: absolute;
@@ -129,13 +147,6 @@ with col2:
             border: 3px solid #FFFFFF;
         }}
 
-        @media (max-width: 480px) {{
-            .photo-collage {{
-                width: 160px;
-                height: 185px;
-                margin-top: 20px;
-            }}
-        }}
         </style>
 
         <div class="photo-collage">
@@ -145,6 +156,8 @@ with col2:
         """, unsafe_allow_html=True)
     else:
         st.caption("Add `assets/img/profile_1.jpeg` and `profile_2.jpeg` to show the photo collage.")
+
+st.markdown(f'<div class="intro-mob">{INTRO_HTML}</div>', unsafe_allow_html=True)
 
 st.divider()
 
